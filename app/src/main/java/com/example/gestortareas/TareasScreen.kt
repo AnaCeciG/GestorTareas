@@ -1,8 +1,10 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class) // Permite usar componentes experimentales de Material3
 
 package com.example.gestortareas
 
+// Importaciones necesarias
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -11,16 +13,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 @Composable
 fun TareasScreen(navController: NavController, tareas: MutableList<Tarea>) {
-    val customBlue = Color(0xFF3F51B5)
     val context = LocalContext.current
 
+    val colorScheme = MaterialTheme.colorScheme
+
+    // Estados
     var titulo by remember { mutableStateOf("") }
     var fecha by remember { mutableStateOf("") }
     var hora by remember { mutableStateOf("") }
@@ -30,19 +33,20 @@ fun TareasScreen(navController: NavController, tareas: MutableList<Tarea>) {
     var errorHora by remember { mutableStateOf(false) }
 
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp)
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+            .padding(16.dp)
     ) {
         TopAppBar(
-            title = { Text("Gestor de Tareas") },
+            title = { Text("Gestor de Tareas", color = colorScheme.onPrimary) },
             actions = {
                 TextButton(onClick = { navController.navigate("menu") }) {
-                    Text("Menú Principal", color = Color.White)
+                    Text("Menú Principal", color = colorScheme.onPrimary)
                 }
             },
             colors = TopAppBarDefaults.mediumTopAppBarColors(
-                containerColor = customBlue,
-                titleContentColor = Color.White,
-                navigationIconContentColor = Color.White
+                containerColor = colorScheme.primary
             )
         )
 
@@ -54,32 +58,46 @@ fun TareasScreen(navController: NavController, tareas: MutableList<Tarea>) {
         ) {
             Button(
                 onClick = { navController.navigate("listarTareas") },
-                colors = ButtonDefaults.buttonColors(containerColor = customBlue),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = colorScheme.primary,
+                    contentColor = colorScheme.onPrimary
+                ),
                 modifier = Modifier.weight(1f)
             ) {
-                Text("Listar Tareas", color = MaterialTheme.colorScheme.onPrimary)
+                Text("Listar Tareas")
             }
             Spacer(modifier = Modifier.width(8.dp))
             Button(
                 onClick = { navController.navigate("cancelarTareas") },
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = colorScheme.secondary,
+                    contentColor = colorScheme.onSecondary
+                ),
                 modifier = Modifier.weight(1f)
             ) {
-                Text("Cancelar Tareas", color = MaterialTheme.colorScheme.onSecondary)
+                Text("Cancelar Tareas")
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Formulario con fondo contrastado
         Card(
             modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceVariant),
             elevation = CardDefaults.cardElevation(8.dp)
         ) {
             Column(
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text("Registrar Nueva Tarea", style = MaterialTheme.typography.headlineSmall)
+                Text(
+                    "Registrar Nueva Tarea",
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = colorScheme.onSurface
+                )
 
                 OutlinedTextField(
                     value = titulo,
@@ -88,8 +106,8 @@ fun TareasScreen(navController: NavController, tareas: MutableList<Tarea>) {
                         errorTitulo = it.isBlank()
                     },
                     label = { Text("Título de la Tarea") },
-                    modifier = Modifier.fillMaxWidth(),
-                    isError = errorTitulo
+                    isError = errorTitulo,
+                    modifier = Modifier.fillMaxWidth()
                 )
                 if (errorTitulo) Text("El título no puede estar vacío", color = Color.Red)
 
@@ -97,11 +115,13 @@ fun TareasScreen(navController: NavController, tareas: MutableList<Tarea>) {
                     value = fecha,
                     onValueChange = {
                         fecha = it
-                        errorFecha = it.length == 10 && !it.matches(Regex("^([0-2][0-9]|3[01])/(0[1-9]|1[0-2])/(\\d{4})\$"))
+                        errorFecha = it.length == 10 && !it.matches(
+                            Regex("^([0-2][0-9]|3[01])/(0[1-9]|1[0-2])/(\\d{4})$")
+                        )
                     },
                     label = { Text("Fecha (DD/MM/YYYY)") },
-                    modifier = Modifier.fillMaxWidth(),
-                    isError = errorFecha
+                    isError = errorFecha,
+                    modifier = Modifier.fillMaxWidth()
                 )
                 if (errorFecha) Text("Formato de fecha inválido", color = Color.Red)
 
@@ -109,11 +129,13 @@ fun TareasScreen(navController: NavController, tareas: MutableList<Tarea>) {
                     value = hora,
                     onValueChange = {
                         hora = it
-                        errorHora = it.length == 5 && !it.matches(Regex("^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]\$"))
+                        errorHora = it.length == 5 && !it.matches(
+                            Regex("^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$")
+                        )
                     },
                     label = { Text("Hora (HH:MM)") },
-                    modifier = Modifier.fillMaxWidth(),
-                    isError = errorHora
+                    isError = errorHora,
+                    modifier = Modifier.fillMaxWidth()
                 )
                 if (errorHora) Text("Formato de hora inválido", color = Color.Red)
 
@@ -121,32 +143,34 @@ fun TareasScreen(navController: NavController, tareas: MutableList<Tarea>) {
 
                 Button(
                     onClick = {
-                        val nuevaTarea = Tarea(id = null, titulo = titulo,  fecha = fecha, hora = hora)
+                        val nuevaTarea = Tarea(id = null, titulo, fecha, hora)
                         val api = RetrofitClient.retrofit.create(TareaApi::class.java)
-
                         api.createTarea(nuevaTarea).enqueue(object : Callback<Tarea> {
                             override fun onResponse(call: Call<Tarea>, response: Response<Tarea>) {
                                 if (response.isSuccessful) {
-                                    Toast.makeText(context, "Tarea registrada: ${response.body()?.titulo}", Toast.LENGTH_SHORT).show()
-                                    // Limpiar campos
+                                    Toast.makeText(context, "Tarea registrada", Toast.LENGTH_SHORT).show()
                                     titulo = ""
                                     fecha = ""
                                     hora = ""
                                 } else {
-                                    Toast.makeText(context, "Error al registrar tarea: ${response.code()}", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Error: ${response.code()}", Toast.LENGTH_SHORT).show()
                                 }
                             }
 
                             override fun onFailure(call: Call<Tarea>, t: Throwable) {
-                                Toast.makeText(context, "Error de red: ${t.localizedMessage}", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Error: ${t.localizedMessage}", Toast.LENGTH_SHORT).show()
                             }
                         })
                     },
-                    enabled = titulo.isNotEmpty() && fecha.isNotEmpty() && hora.isNotEmpty() && !errorTitulo && !errorFecha && !errorHora,
-                    colors = ButtonDefaults.buttonColors(containerColor = customBlue),
+                    enabled = titulo.isNotBlank() && fecha.isNotBlank() && hora.isNotBlank()
+                            && !errorTitulo && !errorFecha && !errorHora,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = colorScheme.primary,
+                        contentColor = colorScheme.onPrimary
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Registrar Tarea", color = MaterialTheme.colorScheme.onPrimary)
+                    Text("Registrar Tarea")
                 }
             }
         }

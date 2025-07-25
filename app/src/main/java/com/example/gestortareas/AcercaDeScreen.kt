@@ -15,32 +15,41 @@ import androidx.navigation.NavController
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AcercaDeScreen(navController: NavController) {
+    // Definimos un color personalizado para usar en la barra superior
     val customBlue = Color(0xFF3F51B5)
 
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = Modifier
+            .fillMaxSize() // Que ocupe toda la pantalla
+            .padding(16.dp), // Espaciado interno
+        horizontalAlignment = Alignment.CenterHorizontally // Centramos horizontalmente
     ) {
+        // Barra superior (TopAppBar) con botón de retroceso
         TopAppBar(
-            title = { Text("Acerca de") },
+            title = { Text("Acerca de") }, // Título de la barra
             navigationIcon = {
-                IconButton(onClick = { navController.popBackStack() }) {
+                IconButton(onClick = { navController.popBackStack() }) { // Botón para volver a la pantalla anterior
                     Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
                 }
             },
             colors = TopAppBarDefaults.mediumTopAppBarColors(
-                containerColor = customBlue,
-                titleContentColor = Color.White
+                containerColor = customBlue, // Fondo azul personalizado
+                titleContentColor = Color.White // Texto blanco
             )
         )
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(32.dp)) // Espacio entre la barra y el contenido
 
-        Text("📱 Gestor de Tareas", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        // Contenido informativo de la pantalla
+        Text(
+            "📱 Gestor de Tareas",
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold
+        )
         Spacer(modifier = Modifier.height(8.dp))
-        Text("Versión: 1.0")
-        Text("Desarrollador: Alexis Parodi,Ana Gonzalez")
-        Text("Materia: Intro. Dispositivos Moviles")
-        Text("Proyecto Final")
+        Text("Versión: 1.0") // Número de versión
+        Text("Desarrollador: Alexis Parodi, Ana Gonzalez") // Nombres del grupo
+        Text("Materia: Intro. Dispositivos Móviles") // Materia
+        Text("Proyecto Final") // Motivo de la app
     }
 }

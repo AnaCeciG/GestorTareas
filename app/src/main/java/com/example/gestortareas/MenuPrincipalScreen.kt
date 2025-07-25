@@ -22,9 +22,11 @@ fun MenuPrincipalScreen(
     isDarkTheme: MutableState<Boolean>,
     onLogout: () -> Unit
 ) {
-    val customRed = Color(0xFF791414)
+    val colorScheme = MaterialTheme.colorScheme
+    val primaryColor = colorScheme.primary
+    val backgroundColor = colorScheme.surface
+    val textColor = colorScheme.onSurface
     val blueColor = colorResource(id = R.color.blue)
-
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -33,21 +35,22 @@ fun MenuPrincipalScreen(
             modifier = Modifier
                 .width(350.dp)
                 .height(500.dp)
-                .background(color = Color.White, shape = MaterialTheme.shapes.medium)
+                .background(color = backgroundColor, shape = MaterialTheme.shapes.medium)
                 .padding(16.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Título
             Text(
                 text = "¡Organiza tus tareas!",
                 style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-                color = customRed,
+                color = primaryColor,
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
                     .padding(bottom = 50.dp)
             )
 
-            // Botón Agregar Tarea
+            // Botón: Agregar Tarea
             Button(
                 onClick = { navController.navigate("tareas") },
                 modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp).height(55.dp),
@@ -58,7 +61,7 @@ fun MenuPrincipalScreen(
                 Text("Agregar Tarea", color = Color.White)
             }
 
-            // Botón Ver Tareas
+            // Botón: Ver Tareas
             Button(
                 onClick = { navController.navigate("listarTareas") },
                 modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp).height(55.dp),
@@ -67,7 +70,7 @@ fun MenuPrincipalScreen(
                 Text("Ver Tareas", color = Color.White)
             }
 
-            // Botón Acerca de
+            // Botón: Acerca de
             Button(
                 onClick = { navController.navigate("acercaDe") },
                 modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp).height(55.dp),
@@ -79,8 +82,28 @@ fun MenuPrincipalScreen(
             }
 
             Spacer(modifier = Modifier.height(20.dp))
-
-            // Botón Cerrar Sesión
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+            ) {
+                Text(
+                    text = if (isDarkTheme.value) "Modo Oscuro" else "Modo Claro",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = textColor
+                )
+                Switch(
+                    checked = isDarkTheme.value,
+                    onCheckedChange = { isDarkTheme.value = it },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = blueColor,
+                        uncheckedThumbColor = textColor
+                    )
+                )
+            }
+            // Botón: Cerrar Sesión
             Button(
                 onClick = { onLogout() },
                 modifier = Modifier
@@ -96,7 +119,6 @@ fun MenuPrincipalScreen(
                     style = MaterialTheme.typography.labelLarge
                 )
             }
-
         }
     }
 }
