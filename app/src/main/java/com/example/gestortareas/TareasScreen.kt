@@ -12,10 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 @Composable
 fun TareasScreen(navController: NavController, tareas: MutableList<Tarea>) {
@@ -23,14 +21,9 @@ fun TareasScreen(navController: NavController, tareas: MutableList<Tarea>) {
 
     val colorScheme = MaterialTheme.colorScheme
 
-    // Estados
-    var titulo by remember { mutableStateOf("") }
-    var fecha by remember { mutableStateOf("") }
-    var hora by remember { mutableStateOf("") }
-
-    var errorTitulo by remember { mutableStateOf(false) }
-    var errorFecha by remember { mutableStateOf(false) }
-    var errorHora by remember { mutableStateOf(false) }
+    // ViewModel y estado
+    val viewModel: TareaViewModel = viewModel()
+    val state by viewModel.uiState.collectAsState()
 
     Column(
         modifier = Modifier
@@ -100,70 +93,47 @@ fun TareasScreen(navController: NavController, tareas: MutableList<Tarea>) {
                 )
 
                 OutlinedTextField(
-                    value = titulo,
-                    onValueChange = {
-                        titulo = it
-                        errorTitulo = it.isBlank()
-                    },
+                    value = state.titulo,
+                    onValueChange = { viewModel.onTituloChange(it) },
                     label = { Text("Título de la Tarea") },
-                    isError = errorTitulo,
+                    isError = state.errorTitulo,
                     modifier = Modifier.fillMaxWidth()
                 )
-                if (errorTitulo) Text("El título no puede estar vacío", color = Color.Red)
+                if (state.errorTitulo) Text("El título no puede estar vacío", color = Color.Red)
 
                 OutlinedTextField(
-                    value = fecha,
-                    onValueChange = {
-                        fecha = it
-                        errorFecha = it.length == 10 && !it.matches(
-                            Regex("^([0-2][0-9]|3[01])/(0[1-9]|1[0-2])/(\\d{4})$")
-                        )
-                    },
+                    value = state.fecha,
+                    onValueChange = { viewModel.onFechaChange(it) },
                     label = { Text("Fecha (DD/MM/YYYY)") },
-                    isError = errorFecha,
+                    isError = state.errorFecha,
                     modifier = Modifier.fillMaxWidth()
                 )
-                if (errorFecha) Text("Formato de fecha inválido", color = Color.Red)
+                if (state.errorFecha) Text("Formato de fecha inválido", color = Color.Red)
 
                 OutlinedTextField(
-                    value = hora,
-                    onValueChange = {
-                        hora = it
-                        errorHora = it.length == 5 && !it.matches(
-                            Regex("^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$")
-                        )
-                    },
+                    value = state.hora,
+                    onValueChange = { viewModel.onHoraChange(it) },
                     label = { Text("Hora (HH:MM)") },
-                    isError = errorHora,
+                    isError = state.errorHora,
                     modifier = Modifier.fillMaxWidth()
                 )
-                if (errorHora) Text("Formato de hora inválido", color = Color.Red)
+                if (state.errorHora) Text("Formato de hora inválido", color = Color.Red)
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Button(
                     onClick = {
-                        val nuevaTarea = Tarea(id = null, titulo, fecha, hora)
-                        val api = RetrofitClient.retrofit.create(TareaApi::class.java)
-                        api.createTarea(nuevaTarea).enqueue(object : Callback<Tarea> {
-                            override fun onResponse(call: Call<Tarea>, response: Response<Tarea>) {
-                                if (response.isSuccessful) {
-                                    Toast.makeText(context, "Tarea registrada", Toast.LENGTH_SHORT).show()
-                                    titulo = ""
-                                    fecha = ""
-                                    hora = ""
-                                } else {
-                                    Toast.makeText(context, "Error: ${response.code()}", Toast.LENGTH_SHORT).show()
-                                }
+                        viewModel.registrarTarea(
+                            onSuccess = {
+                                Toast.makeText(context, "Tarea registrada", Toast.LENGTH_SHORT).show()
+                            },
+                            onError = {
+                                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
                             }
-
-                            override fun onFailure(call: Call<Tarea>, t: Throwable) {
-                                Toast.makeText(context, "Error: ${t.localizedMessage}", Toast.LENGTH_SHORT).show()
-                            }
-                        })
+                        )
                     },
-                    enabled = titulo.isNotBlank() && fecha.isNotBlank() && hora.isNotBlank()
-                            && !errorTitulo && !errorFecha && !errorHora,
+                    enabled = state.titulo.isNotBlank() && state.fecha.isNotBlank() && state.hora.isNotBlank()
+                            && !state.errorTitulo && !state.errorFecha && !state.errorHora,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = colorScheme.primary,
                         contentColor = colorScheme.onPrimary
@@ -176,3 +146,4 @@ fun TareasScreen(navController: NavController, tareas: MutableList<Tarea>) {
         }
     }
 }
+
